@@ -1,3 +1,6 @@
+from operator import truediv
+from re import X
+from turtle import speed
 import pygame
 import sys
 import os
@@ -11,7 +14,7 @@ random.speed()
 
 # we will declare global content definition
 
-speed = 0.30
+SPEED = 0.30
 SNAKE_SIZE = 9
 APPLE = SNAKE_SIZE
 SEPARATION = 10
@@ -37,6 +40,77 @@ black = pygame.Color(0,0,0)
 
 # for clock at the left corner
 gameClock = pygame.time.Clock()
+
+def checkCollision(posA, As, posB, Bs): # As in the size of a and Bs is the size of b
+    if (posA.x < posB.x+Bs and posA.x+As > posB.x and posA.y < posB.y+Bs and posA.y+As > posB.y ):
+        return True
+    return False
+
+#to check the boundaries here we are not listing boundaries liek it can pass through screen and come from other side
+
+def checkLimits(snake):
+    if (snake.x > SCREEN_WIDTH):
+        snake.x = SNAKE_SIZE
+    if (snake.x < 0):   #this will be checked when some part of snake is on other side and some on opposite side
+        snake.x = SCREEN_WIDTH - SNAKE_SIZE
+    if (snake.y > SCREEN_HEIGHT):
+        snake.y = SNAKE_SIZE
+    if (snake.y < 0):   #this also same half half
+        snake.y = SCREEN_HEIGHT - SNAKE_SIZE
+
+#we will make class for food the snake let's name it as apple
+
+class Apple:
+    def __init__(self,x,y,state):
+        self.x = x
+        self.y = y
+        self.state = state
+        self.color = pygame.color.Color("orange")
+
+    def draw(self, screen):
+        pygame.draw.rect(screen,self.color,(self.x,self.y,APPLE_SIZE,APPLE_SIZE),0)
+
+class segment:
+    #initially snake will move in up direction
+    self.x = x
+    self.y = y
+    self.direction = KEY["UP"]
+    self.color = "white"
+
+class snake:
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+        self.direction = KEY["UP"]
+        self.stack = [] #initially it will be empty
+        self.stack.append(self)
+        blackBox = segment(self.x, self.y + SEPARATION)
+        blackBox.color = "NULL"
+        self.stack.append(blackBox)
+
+#we will define moves of the snake
+    def move(self):
+        last_element = len(self.stack) - 1
+        while(last_element is 0):
+            self.stack[last_element].direction = self.stack[last_element].direction
+            self.stack[last_element].x = self.stack[last_element - 1].x
+            self.stack[last_element].y = self.stack[last_element - 1].y
+            last_element -= 1
+            if (len(self,stock) < 2):
+                last_segment = self
+            else:
+                last_segment = self.stack.pop(last_element)
+            last_segment.direction = self.stack[0].direction
+            if(self.stack[0].direction == KEY["UP"]):
+                last_segment.y = self.stack[0].y - (SPEED + FPS)
+            elif(self.stack[0].direction == KEY["DOWN"]):
+                last_segment.y = self.stack[0].y + (SPEED + FPS)
+            elif(self.stack[0].direction == KEY["LEFT"]):
+                last_segment.x = self.stack[0].x - (SPEED + FPS)
+            elif(self.stack[0].direction == KEY["RIGHT"]):
+                last_segment.x = self.stack[0].x + (SPEED + FPS)
+            self.stack.insert(0,last_segment)
+
 
 #we will define keys
 
@@ -78,3 +152,23 @@ def endGame():
             main()
         elif(mKey == "no"):
             break
+        mKey = getKey()
+        gameClock.tick(FPS)
+    sys.exit(0)
+
+def drawScore():
+    score_numb = score_numb_font.render(str(score),1,pygame.Color("red"))
+    screen.blit(score_msg, (SCREEN_WIDTH - score_msg_size[0]-60, 10))
+    screen.blit(score_numb,(SCREEN_WIDTH - 45,14))
+
+def drawGameTime():
+    game_time = score_font.render("Time : "), 1,pygame.Color("white"))
+    game_time_numb = score_numb_font.render(str(gameTime/1000),1,pygame.Color("white"))
+    screen.blit(game_time,(10,10))
+    screen.blit(game_time_numb,(100,14))
+
+def exitScreen():
+    pass
+
+def main():
+    score = 0
